@@ -32,6 +32,34 @@ fastify.post('/account/create', async (request, reply) => {
   reply.code(201).send({ message: 'Account successfully created.' });
 });
 
+fastify.post('/task/create/:accountId', async (request, reply) => {
+  const { accountId } = request.params;
+  const task = request.body;
+
+  const foundAccount = await prisma.account.findUnique({
+    where: {
+      id: accountId,
+    },
+  });
+
+  if (!foundAccount) {
+    reply.code(404).send({ message: 'Account not found.' });
+  }
+
+  const taskCreated = await prisma.task.create({
+    data: {
+      content: task.content,
+      accountId,
+    },
+  });
+
+  if (!taskCreated) {
+    reply.code(500).send({ message: 'Task not created.' });
+  }
+
+  reply.code(201).send({ message: 'Task successfully created.' });
+});
+
 const start = async () => {
   try {
     await fastify.listen({ port: port });
