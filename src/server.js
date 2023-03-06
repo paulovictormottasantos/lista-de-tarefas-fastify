@@ -111,6 +111,30 @@ fastify.patch('/task/update/:taskId', async (request, reply) => {
   reply.code(200).send({ message: 'Task successfully updated.' });
 });
 
+fastify.delete('/task/delete/:taskId', async (request, reply) => {
+  const { taskId } = request.params;
+
+  const foundTask = await prisma.task.findUnique({
+    id: taskId,
+  });
+
+  if (!foundTask) {
+    reply.code(404).send({ message: 'Task not found.' });
+  }
+
+  const deletedTask = await prisma.task.delete({
+    where: {
+      id: taskId,
+    },
+  });
+
+  if (!deletedTask) {
+    reply.code(500).send({ message: 'Task not deleted.' });
+  }
+
+  reply.code(200).send({ message: 'Task successfully deleted.' });
+});
+
 const start = async () => {
   try {
     await fastify.listen({ port: port });
