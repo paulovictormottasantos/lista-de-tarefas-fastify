@@ -1,2 +1,5 @@
 # Outputs
 node_modules
+
+# Variables
+.env
