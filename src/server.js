@@ -82,6 +82,35 @@ fastify.get('/task/find/:accountId', async (request, reply) => {
   reply.code(200).send(foundTasks);
 });
 
+fastify.patch('/task/update/:taskId', async (request, reply) => {
+  const { taskId } = request.params;
+  const task = request.body;
+
+  const foundTask = await prisma.task.findUnique({
+    id: taskId,
+  });
+
+  if (!foundTask) {
+    reply.code(404).send({ message: 'Task not found.' });
+  }
+
+  const updatedTask = await prisma.task.update({
+    where: {
+      id: taskId,
+    },
+    data: {
+      content: task.content,
+      finished: task.finished,
+    },
+  });
+
+  if (!updatedTask) {
+    reply.code(500).send({ message: 'Task not updated.' });
+  }
+
+  reply.code(200).send({ message: 'Task successfully updated.' });
+});
+
 const start = async () => {
   try {
     await fastify.listen({ port: port });
